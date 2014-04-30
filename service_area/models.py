@@ -23,5 +23,4 @@ class Vertice(models.Model):
     latitude    = models.DecimalField( max_digits=14, decimal_places=12)
     def __str__(self):
         return self.id
-     
 
