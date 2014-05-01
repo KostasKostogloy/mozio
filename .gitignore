@@ -54,5 +54,3 @@ docs/_build/
 
 #DB
 db.sqlite3
-
-manage.py

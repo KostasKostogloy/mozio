@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>Service Area mapping</title>
+      
+    <script type='text/javascript' src="http://maps.google.com/maps/api/js?key=AIzaSyAT7OOExiG18lNGM68s6Y25xDVU-g3rWLQ&sensor=false&libraries=drawing&dummy=.js"></script>
+
+    <script type='text/javascript' src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+  
+    <style type='text/css'>
+        body{
+            margin:0px;
+            padding:0px;    
+        }
+        
+        #left_div{
+            width:30%;
+            float:left;
+        }
+        
+        #reset_button{
+            float:right;
+            margin-top:20px;
+        }
+        
+        #supplier_list{
+            padding:30px;
+        }
+        
+        #map_canvas{
+            width:90%;
+            height:700px;
+            margin: 20px auto 0 auto;
+        }
+        
+        #right_div{
+             width:70%;
+             float:left;
+        }
+    
+  </style>
+
+    <script type='text/javascript'>//<![CDATA[ 
+        $.ajaxSetup({ 
+             beforeSend: function(xhr, settings) {
+                 function getCookie(name) {
+                     var cookieValue = null;
+                     if (document.cookie && document.cookie != '') {
+                         var cookies = document.cookie.split(';');
+                         for (var i = 0; i < cookies.length; i++) {
+                             var cookie = jQuery.trim(cookies[i]);
+                             // Does this cookie string begin with the name we want?
+                         if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                             cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                             break;
+                         }
+                     }
+                 }
+                 return cookieValue;
+                 }
+                 if (!(/^http:.*/.test(settings.url) || /^https:.*/.test(settings.url))) {
+                     // Only send the token to relative URLs i.e. locally.
+                     xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+                 }
+             }
+        });    
+        var drawingManager;
+        window.onload=function(){
+            var map; // Global declaration of the map
+            var marker = null;
+            function initialize() {
+                var myLatlng = new google.maps.LatLng(37.7577,-122.4376,13);
+                var myOptions = {
+                    zoom: 13,
+                    center: myLatlng,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                }
+                map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+                google.maps.event.addListener(map, 'click', function(event) {
+                    //delete the old marker
+                    if (marker) { marker.setMap(null); }
+                    //create new marker
+                     marker = new google.maps.Marker({ position: event.latLng, map: map});
+                     $.ajax({
+                        url: window.location.pathname +'search',
+                        type: 'post', 
+                        data: { x: event.latLng.lng(), y: event.latLng.lat() },
+                        success: function(response) {
+                            $('#supplier_list').html("");
+                            $('#supplier_list').html(response);
+                        },
+                        failure: function(response) { 
+                            $('#supplier_list').html("");
+                            alert('Got an error grrrrrrrrrrrr -.-');
+                        }
+                    });
+                     
+                });
+            }
+            initialize();
+            $(function(){
+                $('#clear').click(function(){
+                    marker.setMap(null);
+                    $('#supplier_list').html("");
+                });
+            });
+        }//]]>  
+    </script>
+
+</head>
+
+<body>
+    <div id="left_div">
+        <div id="reset_button">
+            <button id="clear">Reset</button>   
+        </div>
+        <div id="supplier_list"></div>   
+    </div>
+    <div id="right_div">
+        <div id="map_canvas"></div>
+    </div>
+</body>
+
+</html>
+
